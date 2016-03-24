@@ -618,7 +618,7 @@ public class ArticleServiceImpl {
         }
     }
 
-    public boolean reloadAllArticles(){
+    public boolean reloadAllArticles(String contextPath,String realPath){
         try {
             // 设置事务隔离级别
             JdbcUtils
@@ -628,9 +628,51 @@ public class ArticleServiceImpl {
             //只读
             JdbcUtils.setReadOnly();
 
-            articleDao.queryCount("",new Object[]{1,1,1});
+            // 总记录数
+            long count = articleDao.queryCount(null,null);
+            Page<Article> page = new Page<Article>((int) count, 1);
+            //总页数
+            int pageCount = page.getTotalpage();
+            //遍历所有页
+            for(int i=1;i<=pageCount;i++){
+                //查询页
+                page = new Page<Article>((int) count, i);
+                List<Article> arts = articleDao.queryArticleBySQL("select * from article limit ?,?;", new Object[]{page.getStartindex(), page.getPagesize()});
+                //遍历页中的所有文章
+                for(Article a :arts){
+                    //查询文章类型
+                    Category category = categoryDao.queryCategory(a.getCid());
+                    //静态化页面
+                    ServiceUtils.staticPage(a, contextPath, category, realPath);
+                }
+            }
 
-            
+            //提交事务
+            JdbcUtils.commit();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JdbcUtils.rollback();
+            throw new RuntimeException(e);
+        } finally {
+            JdbcUtils.release();
+        }
+    }
+
+    public boolean reloadArticle(int artid,String contextPath,String realPath){
+        try {
+            // 设置事务隔离级别
+            JdbcUtils
+                    .setTransactionIsolation(JdbcUtils.TRANSACTION_READ_COMMITTED);
+            // 开启事务
+            JdbcUtils.startTransaction();
+            //只读
+            JdbcUtils.setReadOnly();
+
+            Article article = articleDao.queryArticle(artid);
+            //静态化页面
+            Category category = categoryDao.queryCategory(article.getCid());
+            ServiceUtils.staticPage(article, contextPath, category, realPath);
 
             //提交事务
             JdbcUtils.commit();
