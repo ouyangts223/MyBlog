@@ -24,7 +24,7 @@
 </head>
 <body>
 <div class="content">
-  文章管理&nbsp;<div><a href="${pageContext.request.contextPath}/manage/article_reloadAll.action">重新静态化所有文章</a></div><br/>
+  文章管理&nbsp;<div><a href="javascript:reloadAllArticles()">重新静态化所有文章</a></div><br/>
   <table style="text-align: left;border: 5px;width: 100%">
     <thead>
     <tr>
@@ -69,10 +69,17 @@
     if(result)
       window.location.href = "${pageContext.request.contextPath}/manage/article_delete.action?artid="+artid;
   }
+
   function reloadArticle(title,artid){
     var result = window.confirm("您确认重新静态化 "+title+" 这篇博文吗？");
     if(result)
       window.location.href = "${pageContext.request.contextPath}/manage/article_reload.action?artid="+artid;
+  }
+
+  function reloadAllArticles(){
+    var result = window.confirm("您确认重新静态化所有博文吗？");
+    if(result)
+      window.location.href = "${pageContext.request.contextPath}/manage/article_reloadAll.action";
   }
 </script>
 </html>
