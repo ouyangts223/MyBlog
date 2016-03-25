@@ -1,6 +1,6 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 			当前第[${page.pagenum }]页
-			&nbsp;&nbsp;&nbsp;
+			&nbsp;&nbsp;
 			<a href="javascript:submit('1')">首页</a>
 			&nbsp;
 			<c:if test="${page.pagenum>1 }">
@@ -16,10 +16,10 @@
 			</c:if>
 			&nbsp;
 			<a href="javascript:submit('${page.totalpage}')">尾页</a>
-			&nbsp;&nbsp;&nbsp;
+			&nbsp;&nbsp;
 			共 [${page.totalpage }]页，共[${page.totalrecord }]条记录
 
-			&nbsp;&nbsp;
+			&nbsp;
 			<input type="text" id="pagenum" style="width: 30px">
 			&nbsp;
 			<input type="button" style="width: 40px" onclick="goWitch(document.getElementById('pagenum'))" value=" GO ">

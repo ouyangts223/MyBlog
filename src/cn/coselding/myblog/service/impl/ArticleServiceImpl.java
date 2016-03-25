@@ -15,6 +15,7 @@ import cn.coselding.myblog.utils.Global;
 import cn.coselding.myblog.utils.JdbcUtils;
 import cn.coselding.myblog.utils.ServiceUtils;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -376,15 +377,24 @@ public class ArticleServiceImpl {
     }
 
     //删除文章
-    public void deleteArticle(int artid) {
+    public void deleteArticle(int artid, String realPath) {
         try {
             // 设置事务隔离级别
             JdbcUtils
                     .setTransactionIsolation(JdbcUtils.TRANSACTION_READ_COMMITTED);
             // 开启事务
             JdbcUtils.startTransaction();
-
+            Article article = articleDao.queryArticleInfo(artid);
+            //删除数据库记录
             articleDao.deleteArticle(artid);
+            //删除静态化文件
+            String path = realPath+ article.getStaticURL()+".ftl";
+            //System.out.println("path -->> "+path);
+            File file = new File(path);
+            if(file.exists()) {
+                file.delete();
+                //System.out.println("File delete....");
+            }
 
             JdbcUtils.commit();
         } catch (SQLException e) {

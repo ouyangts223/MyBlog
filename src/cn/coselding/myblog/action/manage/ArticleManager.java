@@ -191,7 +191,7 @@ public class ArticleManager extends ActionSupport {
     //删除操作
     public String delete(){
         ArticleServiceImpl service = new ArticleServiceImpl();
-        service.deleteArticle(artid);
+        service.deleteArticle(artid,ServletActionContext.getServletContext().getRealPath("/"));
         return "delete";
     }
 
