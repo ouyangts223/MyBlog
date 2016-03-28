@@ -17,7 +17,7 @@ public class CommentNoticeListener implements ServletContextListener {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-
+                System.out.print("Test");
             }
         },0,1000*3600*12);
     }
