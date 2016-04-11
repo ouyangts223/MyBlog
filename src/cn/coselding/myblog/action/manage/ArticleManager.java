@@ -37,6 +37,15 @@ public class ArticleManager extends ActionSupport {
     private Date date;
     private String pagenum;
     private int top;
+    private String meta ;
+
+    public String getMeta() {
+        return meta;
+    }
+
+    public void setMeta(String meta) {
+        this.meta = meta;
+    }
 
     public int getTop() {
         return top;
@@ -113,9 +122,9 @@ public class ArticleManager extends ActionSupport {
     //表单校验
     @Override
     public void validate() {
-        if(method==null)
+        if (method == null)
             return;
-        else if(method.equals("add")||method.equals("update")) {
+        else if (method.equals("add") || method.equals("update")) {
             if (title == null || title.trim().equals("")) {
                 this.addFieldError("title", "博文标题不能为空！");
             }
@@ -125,17 +134,17 @@ public class ArticleManager extends ActionSupport {
             if (content == null || content.trim().equals("")) {
                 this.addFieldError("content", "博文内容不能为空！");
             }
-            time  = time.replace("T"," ");
-            SimpleDateFormat format  = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+            time = time.replace("T", " ");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
             try {
                 date = format.parse(time);
             } catch (ParseException e) {
-                this.addFieldError("time","时间格式不正确");
+                this.addFieldError("time", "时间格式不正确");
             }
             //数据回显
-            if(this.getFieldErrors().size()>0) {
+            if (this.getFieldErrors().size() > 0) {
                 Article article = new Article();
-                article.setShowtime(time.replace(" ","T"));
+                article.setShowtime(time.replace(" ", "T"));
                 article.setTitle(title);
                 article.setType(type);
                 article.setContent(content);
@@ -145,25 +154,25 @@ public class ArticleManager extends ActionSupport {
                 request.setAttribute("article", article);
                 request.setAttribute("artid", artid);
 
-                request.setAttribute("method",method);
-                if(method.equals("add"))
+                request.setAttribute("method", method);
+                if (method.equals("add"))
                     request.setAttribute("pageTitle", "添加文章");
                 else
                     request.setAttribute("pageTitle", "修改文章");
             }
-        }else if(method.equals("delete")){
+        } else if (method.equals("delete")) {
 
         }
     }
 
     //添加文章界面
-    public String addui(){
+    public String addui() {
         ArticleServiceImpl service = new ArticleServiceImpl();
         List<Category> categories = service.getAllCategories();
-        ServletActionContext.getRequest().setAttribute("categories",categories);
+        ServletActionContext.getRequest().setAttribute("categories", categories);
 
         HttpServletRequest request = ServletActionContext.getRequest();
-        request.setAttribute("method","add");
+        request.setAttribute("method", "add");
         request.setAttribute("pageTitle", "添加文章");
         return SUCCESS;
     }
@@ -175,28 +184,28 @@ public class ArticleManager extends ActionSupport {
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute(LoginInterceptor.LOGIN_TAG);
 
-        Article article = initArticle();
+        Article article = initAddArticle();
         article.setUid(user.getUid());
         article.setAuthor(user.getUname());
 
         //保存博文
         ArticleServiceImpl service = new ArticleServiceImpl();
-        service.addArticle(article,ServletActionContext.getRequest().getContextPath(),ServletActionContext.getServletContext().getRealPath("/blog"));
+        service.addArticle(article, ServletActionContext.getRequest().getContextPath(), ServletActionContext.getServletContext().getRealPath("/blog"));
 
         request.setAttribute("message", "博文录入成功！！！");
-        request.setAttribute("url", request.getContextPath()+"/manage/article.action");
+        request.setAttribute("url", request.getContextPath() + "/manage/article.action");
         return "message";
     }
 
     //删除操作
-    public String delete(){
+    public String delete() {
         ArticleServiceImpl service = new ArticleServiceImpl();
-        service.deleteArticle(artid,ServletActionContext.getServletContext().getRealPath("/"));
+        service.deleteArticle(artid, ServletActionContext.getServletContext().getRealPath("/"));
         return "delete";
     }
 
     //修改文章界面
-    public String updateui(){
+    public String updateui() {
         ArticleServiceImpl service = new ArticleServiceImpl();
         //查询要修改的文章
         Article article = service.queryArticle(artid);
@@ -211,38 +220,65 @@ public class ArticleManager extends ActionSupport {
         request.setAttribute("categories", categories);
         request.setAttribute("artid", artid);
 
-        request.setAttribute("method","update");
+        request.setAttribute("method", "update");
         request.setAttribute("pageTitle", "修改文章");
         return SUCCESS;
     }
 
     //修改文章操作
-    public String update(){
+    public String update() {
         HttpServletRequest request = ServletActionContext.getRequest();
 
         //修改博文
         ArticleServiceImpl service = new ArticleServiceImpl();
-        Article article = initArticle();
+        Article article = initUpdateArticle();
         article.setArtid(artid);
-        service.updateArticle(article, ServletActionContext.getRequest().getContextPath(),ServletActionContext.getServletContext().getRealPath("/blog"));
+        service.updateArticle(article, ServletActionContext.getRequest().getContextPath(), ServletActionContext.getServletContext().getRealPath("/blog"));
 
         request.setAttribute("message", "博文修改成功！！！");
-        request.setAttribute("url", request.getContextPath()+"/manage/article.action");
+        request.setAttribute("url", request.getContextPath() + "/manage/article.action");
         return "message";
     }
 
     //初始化封装文章实体
-    private Article initArticle() {
+    private Article initAddArticle() {
         Article article = new Article();
         article.setCid(cid);
-        article.setTime(date==null?new Date():date);
+        article.setTime(date == null ? new Date() : date);
         article.setTitle(title);
-        article.setContent(content);
         article.setType(type);
         article.setTop(top);
-        if (content.length() > 250)
-            article.setMeta(content.substring(0, 250));
-        else article.setMeta(content);
+
+        //截取正文部分
+        content = content.substring(content.indexOf("<body>") + 6);
+        content = content.substring(0, content.indexOf("</body>"));
+        article.setContent(content);
+        //提取文章摘要
+        if (content.length() > 250) {
+            int start = content.indexOf("<span style=\"font-family:") + 25;
+            String meta = content.substring(start, start + 220);
+            meta = meta.substring(meta.indexOf(">") + 1);
+            meta = "<span style=\"font-family:微软雅黑;\">" + meta + "</span>";
+            article.setMeta(meta);
+        } else article.setMeta(content);
+        return article;
+    }
+
+    //初始化封装文章实体
+    private Article initUpdateArticle() {
+        Article article = new Article();
+        article.setCid(cid);
+        article.setTime(date == null ? new Date() : date);
+        article.setTitle(title);
+        article.setType(type);
+        article.setTop(top);
+
+        //截取正文部分
+        content = content.substring(content.indexOf("<body>") + 6);
+        content = content.substring(0, content.indexOf("</body>"));
+        article.setContent(content);
+        //提取文章摘要
+        article.setMeta(meta);
         return article;
     }
 
@@ -250,9 +286,9 @@ public class ArticleManager extends ActionSupport {
     public String query() throws Exception {
         //分页查询所有博文
         ArticleServiceImpl service = new ArticleServiceImpl();
-        String url = ServletActionContext.getRequest().getContextPath()+"/manage/article.action";
+        String url = ServletActionContext.getRequest().getContextPath() + "/manage/article.action";
         Page<Article> page = service.getPageArticles(pagenum, url);
-        ServletActionContext.getRequest().setAttribute("page",page);
+        ServletActionContext.getRequest().setAttribute("page", page);
         return "query";
     }
 
@@ -263,42 +299,42 @@ public class ArticleManager extends ActionSupport {
         HttpServletRequest request = ServletActionContext.getRequest();
         HttpServletResponse response = ServletActionContext.getResponse();
         //填充模版信息
-        Map<String,Object> params = service.getTemplateParams(artid, request.getContextPath());
-        if(params==null){
-            request.setAttribute("message","文章不存在");
-            request.setAttribute("url",request.getContextPath()+"/manage/comment.action");
+        Map<String, Object> params = service.getTemplateParams(artid, request.getContextPath());
+        if (params == null) {
+            request.setAttribute("message", "文章不存在");
+            request.setAttribute("url", request.getContextPath() + "/manage/comment.action");
             return "message";
         }
         //找得到文章，显示给浏览器
         String path = params.get("staticURL").toString().substring(5);
-        boolean result =  TemplateUtils.parserTemplate(request.getServletContext().getRealPath("/") + File.separator + "blog", path+".ftl", params, response.getOutputStream());
-        if(!result){
+        boolean result = TemplateUtils.parserTemplate(request.getServletContext().getRealPath("/") + File.separator + "blog", path + ".ftl", params, response.getOutputStream());
+        if (!result) {
             //服务器异常
-            response.sendError(500,"服务器未知异常！");
+            response.sendError(500, "服务器未知异常！");
         }
         response.getOutputStream().close();
         return null;
     }
 
-    public String reload(){
+    public String reload() {
         HttpServletRequest request = ServletActionContext.getRequest();
 
         ArticleServiceImpl service = new ArticleServiceImpl();
-        service.reloadArticle(artid,request.getContextPath(),request.getServletContext().getRealPath("/blog"));
+        service.reloadArticle(artid, request.getContextPath(), request.getServletContext().getRealPath("/blog"));
 
         request.setAttribute("message", "博文重新静态化成功！！！");
-        request.setAttribute("url", request.getContextPath()+"/manage/article.action");
+        request.setAttribute("url", request.getContextPath() + "/manage/article.action");
         return "message";
     }
 
-    public String reloadAll(){
+    public String reloadAll() {
         HttpServletRequest request = ServletActionContext.getRequest();
 
         ArticleServiceImpl service = new ArticleServiceImpl();
-        service.reloadAllArticles(request.getContextPath(),request.getServletContext().getRealPath("/blog"));
+        service.reloadAllArticles(request.getContextPath(), request.getServletContext().getRealPath("/blog"));
 
         request.setAttribute("message", "所有博文重新静态化成功！！！");
-        request.setAttribute("url", request.getContextPath()+"/manage/article.action");
+        request.setAttribute("url", request.getContextPath() + "/manage/article.action");
         return "message";
     }
 

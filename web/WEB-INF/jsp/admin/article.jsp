@@ -75,6 +75,13 @@
         </td>
         <td></td>
       </tr>
+      <c:if test="${method=='update'}">
+        <tr>
+          <td>摘要：</td>
+          <td><textarea name="meta" cols="80" rows="8">${fn:escapeXml(article.meta)}</textarea></td>
+          <td>${errors.meta[0]}</td>
+        </tr>
+      </c:if>
       <tr>
         <td></td>
         <td>文章内容:</td>
