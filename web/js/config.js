@@ -44,6 +44,8 @@ CKEDITOR.editorConfig = function( config ) {
     config.formatOutput = false; //当输出内容时是否自动格式化代码
     config.formatIndentator = '    '; //当在源码格式下缩进代码使用的字符
     //config.entities = false;
+    //字体
+    config.font_names="宋体/宋体;黑体/黑体;仿宋/仿宋_GB2312;楷体/楷体_GB2312;隶书/隶书;幼圆/幼圆;微软雅黑/微软雅黑;" + config.font_names;
 
     //后台图片上传路径
     config.filebrowserUploadUrl="/MyBlog/manage/uploadImage.action";

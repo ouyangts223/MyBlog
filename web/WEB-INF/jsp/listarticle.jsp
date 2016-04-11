@@ -68,7 +68,7 @@
                     <li>
                         <div class="meta">
                             <h5><a href="${pageContext.request.contextPath}${art.staticURL}.html">${art.title}</a></h5>
-                            <em>${art.time}</em>
+                            <em>${fn:substring(art.time,0,16)}</em>
                         </div>
                     </li>
                 </c:forEach>

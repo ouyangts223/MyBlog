@@ -120,7 +120,7 @@
                     <li>
                         <div class="meta">
                             <h5><a href="${#contextPath#}${la.staticURL}.html">${la.title}</a></h5>
-                            <em>${la.time}</em>
+                            <em>${la.time?string("yyyy-MM-dd HH:mm")}</em>
                         </div>
                     </li>
                 </#list>

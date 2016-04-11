@@ -7,6 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE HTML>
 <html>
   <head>
@@ -42,7 +43,7 @@
       <c:forEach items="${params.topArticles}" var="art">
         <div class="post format-image box">
           <div class="details">
-            <span class="icon-image">${art.time}</span>
+            <span class="icon-image">${fn:substring(art.time,0,16)}</span>
             <span class="likes"><a href="${pageContext.request.contextPath}/likeAction.action?artid=${art.artid}"
                                    class="likeThis">${art.likes}</a></span>
             <span class="comments"><a href="#">${art.looked}</a></span>
@@ -74,7 +75,7 @@
             <li>
               <div class="meta">
                 <h5><a href="${pageContext.request.contextPath}${art.staticURL}.html">${art.title}</a></h5>
-                <em>${art.time}</em>
+                <em>${fn:substring(art.time,0,16)}</em>
               </div>
             </li>
           </c:forEach>

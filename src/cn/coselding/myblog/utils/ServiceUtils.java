@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import cn.coselding.myblog.domain.Article;
@@ -87,7 +88,7 @@ public class ServiceUtils {
                     .replace("${#artid#}",article.getArtid()+"")
                     .replace("${#category#}", category.getCname())
                     .replace("${#author#}", article.getAuthor())
-                    .replace("${#time#}", article.getTime().toLocaleString())
+                    .replace("${#time#}", formatDate(article.getTime()))
                     .replace("${#content#}",article.getContent())
                     .replace("${#typeString#}",typeString);
             //替换网址
@@ -105,6 +106,11 @@ public class ServiceUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String formatDate(Date date){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+        return format.format(date);
     }
 
     public static String getCategoryList(List<Category> categories,String contextPath){

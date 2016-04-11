@@ -7,6 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
@@ -51,15 +52,15 @@
                 <ol>
                     <li class="form-row text-input-row">
                         <label><h5>您的昵称：${errors.nickname[0]}</h5></label>
-                        <input type="text" name="nickname" value="${nickname}" class="text-input-email required">
+                        <input type="text" name="nickname" value="${fn:escapeXml(nickname)}" class="text-input-email required">
                     </li>
                     <li class="form-row text-input-row">
                         <label><h5>您的email：${errors.email[0]}</h5></label>
-                        <input type="text" name="email" value="${email}" class="text-input-email required">
+                        <input type="text" name="email" value="${fn:escapeXml(email)}" class="text-input-email required">
                     </li>
                     <li class="form-row text-input-row">
                         <label><h5>说几句话吧：${errors.comcontent[0]}</h5></label>
-                        <textarea name="comcontent" class="text-area required"><c:if test="${!empty(title)}">#${title}#</c:if>${comcontent}</textarea>
+                        <textarea name="comcontent" class="text-area required"><c:if test="${!empty(title)}">#${title}#</c:if>${fn:escapeXml(comcontent)}</textarea>
                     </li>
                     <li class="button-row">
                         <input type="submit" value="留言" name="submit" class="btn-submit">
@@ -75,10 +76,10 @@
         <div class="content2">
             <div class="post format-image box">
                 <div class="details">
-                    <span class="icon-image">${com.comtime}</span>
+                    <span class="icon-image">${fn:substring(com.comtime,0,19)}</span>
                 </div>
-                <h1 class="title">${com.gname}</h1>
-                <p>${com.comcontent}</p>
+                <h1 class="title">${fn:escapeXml(com.gname)}</h1>
+                <p>${fn:escapeXml(com.comcontent)}</p>
                 <div class="tags"><a href="mailto:${com.gemail}">${com.gemail}</a></div>
             </div>
         </div>
