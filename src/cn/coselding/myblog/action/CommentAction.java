@@ -121,6 +121,12 @@ public class CommentAction extends ActionSupport{
         VisitorServiceImpl service = new VisitorServiceImpl();
         String url = ServletActionContext.getRequest().getContextPath()+"/commentUI.action";
         Page<Comment> page = service.findComments(pagenum,url);
+
+        //把用户的邮箱隐藏起来，安全作用，尊重用户
+        for(Comment comment:page.getList()){
+            String email = comment.getGemail().substring(0,2)+"******"+comment.getGemail().substring(comment.getGemail().lastIndexOf("@")-1);
+            comment.setGemail(email);
+        }
         ServletActionContext.getRequest().setAttribute("page", page);
         return SUCCESS;
     }
